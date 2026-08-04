@@ -77,41 +77,6 @@ The goal of this project is to build an automated pipeline that:
 * Analyze historical weather information using SQL.
 * Prepare data for visualization in Power BI or Tableau.
 
----
-
-## 📥 Data Collection
-
-The pipeline retrieves weather information for selected cities.
-
-Depending on the weather API used, the dataset can include:
-
-| Field               | Description                         |
-| ------------------- | ----------------------------------- |
-| `city`              | Name of the city                    |
-| `country`           | Country name/code                   |
-| `latitude`          | Geographic latitude                 |
-| `longitude`         | Geographic longitude                |
-| `observation_time`  | Time of the weather observation     |
-| `temperature`       | Current temperature                 |
-| `feels_like`        | Feels-like temperature              |
-| `humidity`          | Relative humidity                   |
-| `pressure`          | Atmospheric pressure                |
-| `wind_speed`        | Wind speed                          |
-| `weather_condition` | Current weather condition           |
-| `precipitation`     | Precipitation amount                |
-| `ingested_at`       | Time the pipeline stored the record |
-
-Example record:
-
-```text
-City: Cairo
-Temperature: 31.5°C
-Humidity: 62%
-Wind Speed: 18 km/h
-Pressure: 1008 hPa
-Condition: Clear
-Timestamp: 2026-08-04 05:00:00
-```
 
 ---
 
@@ -155,59 +120,8 @@ The transformed data is loaded into PostgreSQL.
 
 The database stores historical weather records so that weather patterns can be analyzed over time.
 
----
-
-## 🗄️ PostgreSQL Database
-
-A possible database table is:
-
-```text
-weather_data
---------------------------------
-id
-city
-country
-latitude
-longitude
-observation_time
-temperature
-feels_like
-humidity
-pressure
-wind_speed
-weather_condition
-precipitation
-ingested_at
-```
-
-Example SQL query:
-
-```sql
-SELECT
-    city,
-    AVG(temperature) AS average_temperature
-FROM weather_data
-GROUP BY city
-ORDER BY average_temperature DESC;
-```
 
 ---
-
-## ✅ Data Quality
-
-Data-quality checks are included to prevent invalid information from entering the database.
-
-The pipeline can validate that:
-
-* `city` is not NULL.
-* `temperature` is within a reasonable range.
-* `humidity` is between 0 and 100.
-* `wind_speed` is not negative.
-* `observation_time` is valid.
-* Duplicate records are not inserted.
-* Required API fields are present.
-
-If invalid data is detected, the pipeline can log the issue and prevent the bad record from being loaded.
 
 ---
 
