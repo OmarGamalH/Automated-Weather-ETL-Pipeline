@@ -79,6 +79,9 @@ The goal of this project is to build an automated pipeline that:
 
 
 ---
+# Data Source
+https://open-meteo.com/
+---
 
 ## 🔄 ETL Pipeline
 
