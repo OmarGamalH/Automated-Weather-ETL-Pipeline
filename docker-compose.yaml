@@ -9,12 +9,20 @@ services:
       POSTGRES_PASSWORD: "admin"
 
     container_name: postgres_container
+
   etl_container:
     build: ./ETL_container
 
+
+    volumes:
+     - logs_vol:/app/logs
     stdin_open: true
     tty: true
     depends_on: 
       - postgres_container
 
     container_name: ETL_container
+
+
+volumes:
+  logs_vol:
