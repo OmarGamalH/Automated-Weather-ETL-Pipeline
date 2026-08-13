@@ -1,0 +1,7 @@
+FROM postgres
+
+ENV POSTGRES_PASSWORD="Gemy0100"
+
+EXPOSE 5432
+
+CMD ["postgres"]

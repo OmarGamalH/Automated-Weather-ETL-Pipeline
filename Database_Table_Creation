@@ -5,10 +5,11 @@ CREATE TABLE weather_data(
 	id SERIAL PRIMARY KEY,
 	latitude FLOAT NOT NULL,
 	longitude FLOAT NOT NULL,
-	time TEXT NOT NULL,
+	time TIMESTAMP NOT NULL,
 	temperature FLOAT NOT NULL
 );
 
 
-SELECT *
-FROM weather_data;
+SELECT * FROM weather_data;
+
+DELETE FROM weather_data
