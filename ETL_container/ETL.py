@@ -7,7 +7,7 @@ import sqlalchemy as sql
 api_url = "https://api.open-meteo.com/v1/forecast"
 latitude = 52.52 
 longitude = 13.41
-database_url = "postgresql+psycopg2://postgres:Gemy0100@postgres_container:5432/weather_db"
+database_url = "postgresql+psycopg2://postgres:admin@postgres_container:5432/weather_db"
 engine = sql.create_engine(database_url)
 
 con = engine.connect()
