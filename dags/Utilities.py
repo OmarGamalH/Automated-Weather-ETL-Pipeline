@@ -7,8 +7,7 @@ import random
 
 api_url = "https://api.open-meteo.com/v1/forecast"
 logger = l.getLogger(__name__)
-current_dir = os.getcwd()
-l.basicConfig( filename = os.path.join(current_dir , "logs/logs.log") , format = '%(levelname)s - %(name)s - %(message)s' , level = l.DEBUG)
+l.basicConfig(format = '%(levelname)s - %(name)s - %(message)s' , level = l.DEBUG)
 database_url = "postgresql+psycopg2://postgres:admin@postgres_storage:5432/weather_db"
 engine = sql.create_engine(database_url)
 con = engine.connect()
