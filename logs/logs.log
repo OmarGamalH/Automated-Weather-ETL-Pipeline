@@ -1,0 +1,4 @@
+INFO - __main__ - Extraction of data from API starts...
+DEBUG - urllib3.connectionpool - Starting new HTTPS connection (1): api.open-meteo.com:443
+DEBUG - urllib3.connectionpool - https://api.open-meteo.com:443 "GET /v1/forecast?latitude=52.52&longitude=13.41&hourly=temperature_2m HTTP/1.1" 200 None
+INFO - __main__ - Extraction of data from API Ends.
