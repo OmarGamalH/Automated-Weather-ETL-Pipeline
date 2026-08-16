@@ -36,7 +36,6 @@ def extract():
         return intermediate_data_path
     except Exception as e:
         l.error(f"Error in extraction of data ({e})")
-        print(e)
         raise Exception
 
 
@@ -51,7 +50,6 @@ def load():
         logger.info("Loading of data ends.") 
     except Exception as e:
         l.error(f"Error in loading of data ({e})")
-        print(e)
         raise Exception
 
 def remove_file():
