@@ -1,4 +1,4 @@
-# Weather Data Pipeline
+# Automated Weather Data Pipeline
 
 A containerized ETL pipeline that extracts hourly temperature data from the Open-Meteo API, stores the extracted data temporarily as CSV, loads it into PostgreSQL, and orchestrates the workflow with Apache Airflow.
 
