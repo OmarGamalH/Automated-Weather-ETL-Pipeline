@@ -94,7 +94,6 @@ Add it to your `.env`:
 FERNET_KEY=<generated-key>
 ```
 
-> ⚠️ **Security note:** `Utilities.py` currently contains a hardcoded API Ninjas key. Before running this yourself, replace it with an environment variable (e.g. `os.environ["API_NINJAS_KEY"]`) and pass it in via `.env` / Docker secrets rather than committing it to source control.
 
 ### 3. Create the weather storage database
 
