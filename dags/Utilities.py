@@ -25,7 +25,7 @@ def extract():
 
         logger.info("Extraction of data from API starts...")
 
-
+        print(latitude , longitude)
         
         api_ninja_result = r.get(f'https://api.api-ninjas.com/v1/reversegeocoding?lat={str(latitude)}&lon={str(longitude)}', headers={'X-Api-Key': 'rPh9HugPg4yUw1I0xSNFPp1GQdZo7fhTgAyq9VSr'}).json()
 
