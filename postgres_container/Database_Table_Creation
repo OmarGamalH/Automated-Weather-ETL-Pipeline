@@ -2,6 +2,9 @@ CREATE DATABASE Weather_DB;
 
 CREATE TABLE weather_data(
 	id SERIAL PRIMARY KEY,
+	name TEXT NOT NULL,
+	country TEXT NOT NULL,
+	state TEXT NOT NULL,
 	latitude FLOAT NOT NULL ,
 	longitude FLOAT NOT NULL,
 	generationtime_ms FLOAT NOT NULL,

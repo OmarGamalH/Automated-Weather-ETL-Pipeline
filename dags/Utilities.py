@@ -7,6 +7,7 @@ import random
 
 
 meteo_url = "https://api.open-meteo.com/v1/forecast"
+api_ninja_url = "https://api.api-ninjas.com/v1/reversegeocoding"
 
 logger = l.getLogger(__name__)
 l.basicConfig(format = '%(levelname)s - %(name)s - %(message)s' , level = l.DEBUG)
@@ -24,6 +25,19 @@ def extract():
 
         logger.info("Extraction of data from API starts...")
 
+
+        
+        api_ninja_result = r.get(f'https://api.api-ninjas.com/v1/reversegeocoding?lat={str(latitude)}&lon={str(longitude)}', headers={'X-Api-Key': 'rPh9HugPg4yUw1I0xSNFPp1GQdZo7fhTgAyq9VSr'}).json()
+
+        if len(api_ninja_result) > 0:
+            name = api_ninja_result[0]['name']
+            country = api_ninja_result[0]['country']
+            state = api_ninja_result[0]['state']
+        else:
+            name = country = state = "Unknown"
+
+        print(api_ninja_result)
+
         meteo_params = {
             "latitude": latitude,
             "longitude": longitude,
@@ -36,6 +50,9 @@ def extract():
         meteo_results_df = pd.json_normalize(meteo_results)
         meteo_results_df.columns = list(map(lambda column: column.replace('current.' , '') , list(meteo_results_df.columns)))
 
+        meteo_results_df.insert(0, 'name' , name)
+        meteo_results_df.insert(0, 'country' , country)
+        meteo_results_df.insert(0, 'state' , state)
         meteo_results_df.to_csv(extracted_data_path, index = False)
         
         logger.info("Extraction of data from API Ends.")
