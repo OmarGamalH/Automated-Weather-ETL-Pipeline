@@ -1,0 +1,2 @@
+latitude,longitude,generationtime_ms,utc_offset_seconds,timezone,timezone_abbreviation,elevation,time,interval,temperature_2m,relative_humidity_2m,is_day,precipitation,rain,showers,snowfall,pressure_msl,surface_pressure,cloud_cover,weather_code,wind_gusts_10m,wind_direction_10m,wind_speed_10m,apparent_temperature
+40.9897,-105.01376,1.628875732421875,0,GMT,GMT,1963.0,2026-08-17T02:15,900,18.7,86,False,0.0,0.0,0.0,0.0,1014.4,810.1,100,3,15.8,120,11.6,19.2

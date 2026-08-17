@@ -1,15 +1,32 @@
 CREATE DATABASE Weather_DB; 
 
-	
 CREATE TABLE weather_data(
 	id SERIAL PRIMARY KEY,
-	latitude FLOAT NOT NULL,
+	latitude FLOAT NOT NULL ,
 	longitude FLOAT NOT NULL,
-	time TIMESTAMP NOT NULL,
-	temperature FLOAT NOT NULL
+	generationtime_ms FLOAT NOT NULL,
+	utc_offset_seconds FLOAT NOT NULL,
+	timezone VARCHAR(256) NOT NULL,
+	timezone_abbreviation VARCHAR(256) NOT NULL,
+	elevation FLOAT NOT NULL, 
+	time TIMESTAMP NOT NULL ,
+	interval FLOAT NOT NULL,
+	temperature_2m FLOAT NOT NULL,
+	relative_humidity_2m FLOAT NOT NULL,
+	is_day BOOLEAN NOT NULL,
+	precipitation FLOAT NOT NULL,
+	rain FLOAT NOT NULL,
+	showers FLOAT NOT NULL,
+	snowfall FLOAT NOT NULL,
+	pressure_msl FLOAT NOT NULL,
+	surface_pressure FLOAT NOT NULL,
+	cloud_cover FLOAT NOT NULL,
+	weather_code FLOAT NOT NULL,
+	wind_gusts_10m FLOAT NOT NULL,
+	wind_direction_10m FLOAT NOT NULL,
+	wind_speed_10m FLOAT NOT NULL,
+	apparent_temperature FLOAT NOT NULL
 );
-
 
 SELECT * FROM weather_data;
 
-DELETE FROM weather_data
