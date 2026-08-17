@@ -1,4 +1,4 @@
-# Weather Data Pipeline
+# Automated Weather Data Pipeline
 
 A containerized ETL pipeline that extracts hourly temperature data from the Open-Meteo API, stores the extracted data temporarily as CSV, loads it into PostgreSQL, and orchestrates the workflow with Apache Airflow.
 
@@ -491,32 +491,4 @@ The project does not currently contain a separate project license file.
 
 ## Author
 
-**Your Name**
-
-Replace this section with your GitHub profile information.
-
-## Project Structure
-
-```text
-Weather Data Pipeline
-│
-├── pipeline.py
-│   └── Airflow DAG
-│
-├── Utilities.py
-│   ├── extract()
-│   ├── load()
-│   └── remove_file()
-│
-├── docker-compose-airflow.yaml
-│   └── Airflow + Redis + PostgreSQL environment
-│
-├── docker-compose-system.yaml
-│   └── PostgreSQL weather-data storage
-│
-├── Dockerfile
-│   └── PostgreSQL image
-│
-└── Database_Table_Creation
-    └── Database and table SQL
-```
+**Omar Gamal**
