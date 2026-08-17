@@ -16,14 +16,14 @@ The pipeline is defined as an Airflow DAG (`Weather_pipeline`) that runs on a `*
 ## Architecture
 
 ```
-                ┌───────────────────┐
+                ┌────────────────────┐
                 │   Open-Meteo API   │
                 └─────────┬──────────┘
                           │
-┌───────────────────┐    │    ┌─────────────────────────┐
-│  API Ninjas        │◄───┼───►│  Airflow DAG             │
-│  (Reverse Geocode)  │    │    │  extract → transform →   │
-└───────────────────┘    │    │  load → remove_file      │
+┌───────────────────┐     │    ┌─────────────────────────┐
+│  API Ninjas       │ ◄───┼───►│  Airflow DAG            │
+│ (Reverse Geocode) │     │    │   extract → transform → │
+└───────────────────┘     │    │  load → remove_file     │
                           │    └────────────┬────────────┘
                           │                 │
                           ▼                 ▼
