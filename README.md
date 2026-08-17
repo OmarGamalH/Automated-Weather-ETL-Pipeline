@@ -31,8 +31,7 @@ The pipeline is defined as an Airflow DAG (`Weather_pipeline`) that runs on a `*
                   intermediate_data.csv (weather_data table)
 ```
 
-<!-- Replace the image path below with your architecture diagram, e.g. docs/images/architecture.png -->
-![Architecture Diagram](docs/images/architecture.png)
+<img width="760" height="326" alt="Image" src="https://github.com/user-attachments/assets/e8f498f0-0bec-49b1-802b-53f8b28da73a" />
 
 **Services:**
 
