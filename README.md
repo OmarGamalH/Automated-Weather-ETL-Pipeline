@@ -491,7 +491,7 @@ The project does not currently contain a separate project license file.
 
 ## Author
 
-**Your Name**
+**Omar Gamal**
 
 Replace this section with your GitHub profile information.
 
