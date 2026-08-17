@@ -1,491 +1,522 @@
-# 🌦️ Weather Data Engineering Pipeline
+# Weather Data Pipeline
 
-An end-to-end data engineering project that collects weather data from a public API, cleans and transforms the raw data, stores it in PostgreSQL, and makes it available for analysis and visualization.
+A containerized ETL pipeline that extracts hourly temperature data from the Open-Meteo API, stores the extracted data temporarily as CSV, loads it into PostgreSQL, and orchestrates the workflow with Apache Airflow.
 
-The project demonstrates a practical **ETL (Extract, Transform, Load)** workflow using **Python, PostgreSQL, Apache Airflow, Docker, and SQL**.
+## Overview
 
----
+The project implements a simple weather-data pipeline using:
 
-## 📌 Project Overview
+- **Python** for the ETL logic
+- **Open-Meteo API** as the weather-data source
+- **Pandas** for data handling
+- **SQLAlchemy** for PostgreSQL connectivity
+- **PostgreSQL** for weather-data storage
+- **Apache Airflow** for workflow orchestration
+- **Docker Compose** for the Airflow environment and PostgreSQL storage database
+- **Redis** as the Celery broker used by the Airflow setup
 
-Weather information is continuously generated through APIs, but raw API responses are not always directly suitable for analysis. They may contain unnecessary fields, inconsistent formats, missing values, and timestamps that require processing.
-
-The goal of this project is to build an automated pipeline that:
-
-1. Extracts weather data from a weather API.
-2. Cleans and transforms the raw data.
-3. Validates the processed information.
-4. Stores the data in PostgreSQL.
-5. Runs automatically at scheduled intervals.
-6. Makes historical weather data available for analysis and visualization.
-
----
-
-## 🏗️ Project Architecture
+The pipeline flow is:
 
 ```text
-                    ┌─────────────────┐
-                    │   Weather API   │
-                    └────────┬────────┘
-                             │
-                             ▼
-                    ┌─────────────────┐
-                    │     Python      │
-                    │     Extract     │
-                    └────────┬────────┘
-                             │
-                             ▼
-                    ┌─────────────────┐
-                    │ Transform &     │
-                    │ Data Cleaning   │
-                    └────────┬────────┘
-                             │
-                             ▼
-                    ┌─────────────────┐
-                    │ Data Validation │
-                    └────────┬────────┘
-                             │
-                             ▼
-                    ┌─────────────────┐
-                    │   PostgreSQL    │
-                    └────────┬────────┘
-                             │
-                             ▼
-                    ┌─────────────────┐
-                    │ SQL / Dashboard │
-                    │    Analysis     │
-                    └─────────────────┘
-
-                 Apache Airflow
-             orchestrates the workflow
-
-                      Docker
-              provides the environment
+Open-Meteo API
+      │
+      ▼
+   Extract
+      │
+      ▼
+intermediate_data.csv
+      │
+      ▼
+     Load
+      │
+      ▼
+ PostgreSQL
+      │
+      ▼
+   Cleanup
 ```
 
----
+## Pipeline Workflow
 
-## 🎯 Project Objectives
+The Airflow DAG is named:
 
-* Build a real-world ETL pipeline.
-* Retrieve data from an external REST API.
-* Process and clean raw JSON data.
-* Store structured data in PostgreSQL.
-* Automate the pipeline with Apache Airflow.
-* Containerize the project with Docker.
-* Implement basic data-quality checks.
-* Analyze historical weather information using SQL.
-* Prepare data for visualization in Power BI or Tableau.
+```text
+Weather_pipeline
+```
 
+It contains three tasks:
 
----
-# Data Source
-https://open-meteo.com/
----
+```text
+extract_data_from_source
+          │
+          ▼
+load_data_to_destination
+          │
+          ▼
+remove_intermediate_data
+```
 
-## 🔄 ETL Pipeline
+The task dependency is defined as:
+
+```python
+extract_data_task >> load_data_task >> remove_intermediate_data
+```
 
 ### 1. Extract
 
-Python sends HTTP requests to the weather API and retrieves the latest weather information.
+The `extract()` function:
 
-The extraction process handles:
-
-* API requests
-* API authentication where required
-* Response parsing
-* Connection errors
-* API errors
-* Request timeouts
-* Invalid responses
-
-The response is initially treated as raw data.
-
-### 2. Transform
-
-The raw API response is cleaned and converted into a consistent format.
-
-Transformation tasks include:
-
-* Selecting required fields.
-* Converting temperature units.
-* Standardizing city names.
-* Converting timestamps.
-* Handling missing values.
-* Removing duplicate records.
-* Validating numerical values.
-* Adding an ingestion timestamp.
-* Converting API data into a database-friendly structure.
-
-### 3. Load
-
-The transformed data is loaded into PostgreSQL.
-
-The database stores historical weather records so that weather patterns can be analyzed over time.
-
-
----
-
----
-
-## ⏰ Workflow Orchestration
-
-Apache Airflow is used to automate and orchestrate the pipeline.
-
-A typical DAG can contain:
+1. Generates a random latitude between `-90` and `90`.
+2. Generates a random longitude between `-180` and `180`.
+3. Sends the coordinates to the Open-Meteo forecast API.
+4. Requests hourly `temperature_2m` data.
+5. Creates a Pandas DataFrame containing:
+   - `latitude`
+   - `longitude`
+   - `time`
+   - `temperature`
+6. Saves the DataFrame to:
 
 ```text
-start
-  ↓
-extract_weather_data
-  ↓
-validate_response
-  ↓
-transform_weather_data
-  ↓
-validate_data
-  ↓
-load_to_postgresql
-  ↓
-finish
+./intermediate_data.csv
 ```
 
-The pipeline can be scheduled to run hourly.
+### 2. Load
+
+The `load()` function reads:
 
 ```text
-08:00 → Extract → Transform → Load
-09:00 → Extract → Transform → Load
-10:00 → Extract → Transform → Load
-11:00 → Extract → Transform → Load
+./intermediate_data.csv
 ```
 
-This allows the system to continuously build a historical weather dataset without manual execution.
-
----
-
-## 🐳 Docker
-
-Docker can be used to containerize the project's services.
-
-Possible containers include:
-
-* Python application
-* PostgreSQL
-* Apache Airflow
-* Supporting services
-
-Using Docker makes the project easier to run consistently across different environments.
-
----
-
-## 📊 Data Analysis
-
-Once enough historical data has been collected, SQL can be used to analyze the dataset.
-
-### Average temperature by city
-
-```sql
-SELECT
-    city,
-    AVG(temperature) AS average_temperature
-FROM weather_data
-GROUP BY city;
-```
-
-### Maximum temperature
-
-```sql
-SELECT
-    MAX(temperature) AS maximum_temperature
-FROM weather_data;
-```
-
-### Average humidity by city
-
-```sql
-SELECT
-    city,
-    AVG(humidity) AS average_humidity
-FROM weather_data
-GROUP BY city;
-```
-
-### Other possible analyses
-
-* Hottest and coldest days.
-* Average temperature by city.
-* Average humidity.
-* Maximum wind speed.
-* Rainfall trends.
-* Temperature by hour.
-* Temperature changes over time.
-* Weather comparison between cities.
-
----
-
-## 📈 Dashboard
-
-The processed data can be connected to a visualization platform such as **Power BI** or **Tableau**.
-
-A dashboard could display:
-
-* Current temperature.
-* Average temperature.
-* Humidity.
-* Wind speed.
-* Rainfall.
-* Temperature trends.
-* City comparisons.
-* Historical weather patterns.
-
----
-
-## 🛠️ Technology Stack
-
-| Component        | Technology         |
-| ---------------- | ------------------ |
-| Programming      | Python             |
-| Data Source      | Weather API        |
-| Data Processing  | Pandas / Python    |
-| Database         | PostgreSQL         |
-| Orchestration    | Apache Airflow     |
-| Containerization | Docker             |
-| Query Language   | SQL                |
-| Visualization    | Power BI / Tableau |
-| Version Control  | Git / GitHub       |
-
----
-
-## 📁 Suggested Project Structure
+and appends its contents to the PostgreSQL table:
 
 ```text
-weather-data-engineering/
-│
-├── dags/
-│   └── weather_pipeline.py
-│
-├── src/
-│   ├── extract.py
-│   ├── transform.py
-│   ├── load.py
-│   └── config.py
-│
-├── sql/
-│   ├── create_tables.sql
-│   └── analysis.sql
-│
-├── tests/
-│   └── test_pipeline.py
-│
-├── data/
-│   └── sample/
-│
-├── logs/
-│
-├── .env.example
-├── .gitignore
+weather_data
+```
+
+The data is written using Pandas `to_sql()` with SQLAlchemy.
+
+### 3. Cleanup
+
+The `remove_file()` function removes:
+
+```text
+./intermediate_data.csv
+```
+
+after the loading task.
+
+## Airflow Schedule
+
+The DAG is configured with the following schedule:
+
+```text
+* * * * *
+```
+
+This schedules the DAG to run every minute.
+
+The DAG start date is:
+
+```text
+2026-08-16
+```
+
+## Technologies
+
+| Technology | Usage |
+|---|---|
+| Python | ETL implementation |
+| Apache Airflow 3.3.1 | Workflow orchestration |
+| Open-Meteo | Weather API |
+| Requests | HTTP requests |
+| Pandas | DataFrame and CSV processing |
+| SQLAlchemy | Database connection |
+| PostgreSQL 16 | Airflow database and weather-data storage |
+| Redis 7.2 | Celery broker |
+| Docker | Containerization |
+| Docker Compose | Service orchestration |
+
+## Project Files
+
+```text
+.
+├── pipeline.py
+├── Utilities.py
+├── docker-compose-airflow.yaml
+├── docker-compose-system.yaml
 ├── Dockerfile
-├── docker-compose.yml
-├── requirements.txt
-└── README.md
+└── Database_Table_Creation
 ```
 
----
+### `pipeline.py`
 
-## ⚙️ Installation
+Contains the Airflow DAG and defines the three pipeline tasks:
+
+```text
+extract_data_from_source
+load_data_to_destination
+remove_intermediate_data
+```
+
+### `Utilities.py`
+
+Contains the ETL functions:
+
+```python
+extract()
+load()
+remove_file()
+```
+
+It also contains the Open-Meteo API configuration, PostgreSQL connection, logging configuration, and intermediate CSV path.
+
+### `docker-compose-airflow.yaml`
+
+Defines the Airflow environment, including:
+
+- Airflow API server
+- Airflow scheduler
+- Airflow DAG processor
+- Airflow worker
+- Airflow triggerer
+- Airflow initialization service
+- PostgreSQL
+- Redis
+
+The Airflow setup uses:
+
+```text
+CeleryExecutor
+```
+
+and connects the Airflow services to Redis and PostgreSQL.
+
+### `docker-compose-system.yaml`
+
+Defines the PostgreSQL container used for storing the weather data:
+
+```text
+postgres_storage
+```
+
+The PostgreSQL container port `5432` is exposed on host port `5433`.
+
+### `Dockerfile`
+
+Defines the PostgreSQL image used by the project:
+
+```dockerfile
+FROM postgres
+
+EXPOSE 5432
+
+CMD ["postgres"]
+```
+
+### `Database_Table_Creation`
+
+Contains the SQL used to create the weather database and table.
+
+## Database
+
+The project creates a database named:
+
+```text
+Weather_DB
+```
+
+The weather data is stored in:
+
+```text
+weather_data
+```
+
+### Table Schema
+
+```sql
+CREATE TABLE weather_data(
+    id SERIAL PRIMARY KEY,
+    latitude FLOAT NOT NULL,
+    longitude FLOAT NOT NULL,
+    time TIMESTAMP NOT NULL,
+    temperature FLOAT NOT NULL
+);
+```
+
+The table contains:
+
+| Column | Type | Description |
+|---|---|---|
+| `id` | `SERIAL` | Primary key |
+| `latitude` | `FLOAT` | Latitude returned by Open-Meteo |
+| `longitude` | `FLOAT` | Longitude returned by Open-Meteo |
+| `time` | `TIMESTAMP` | Weather-data timestamp |
+| `temperature` | `FLOAT` | Hourly temperature |
+
+## Database Connection
+
+The ETL code connects to PostgreSQL using SQLAlchemy.
+
+The configured connection is:
+
+```text
+postgresql+psycopg2://postgres:admin@postgres_storage:5432/weather_db
+```
+
+The Docker service used as the database hostname is:
+
+```text
+postgres_storage
+```
+
+The storage PostgreSQL service is exposed to the host on:
+
+```text
+localhost:5433
+```
+
+while PostgreSQL listens on port `5432` inside the container.
+
+## Running the Project
 
 ### Prerequisites
 
-Make sure the following are installed:
+The project requires:
 
-* Python 3.10+
-* Docker
-* Docker Compose
-* Git
-* PostgreSQL (optional if running it through Docker)
+- Docker
+- Docker Compose
 
-### 1. Clone the repository
+### 1. Start the PostgreSQL Storage Container
 
-```bash
-git clone <your-repository-url>
-cd weather-data-engineering
-```
-
-### 2. Create an environment file
-
-Copy the example environment file:
+Run:
 
 ```bash
-cp .env.example .env
+docker compose -f docker-compose-system.yaml up -d
 ```
 
-Add your API key and database configuration to `.env`.
-
-Example:
-
-```env
-WEATHER_API_KEY=your_api_key
-POSTGRES_HOST=postgres
-POSTGRES_PORT=5432
-POSTGRES_DB=weather_db
-POSTGRES_USER=weather_user
-POSTGRES_PASSWORD=your_password
-```
-
-> Never commit `.env` or API keys to GitHub.
-
-### 3. Install Python dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Start the Docker environment
-
-```bash
-docker compose up -d
-```
-
-### 5. Check running containers
-
-```bash
-docker compose ps
-```
-
-### 6. Stop the environment
-
-```bash
-docker compose down
-```
-
----
-
-## 🔐 Environment Variables
-
-Create a `.env` file containing the required configuration.
-
-```env
-WEATHER_API_KEY=
-POSTGRES_HOST=
-POSTGRES_PORT=
-POSTGRES_DB=
-POSTGRES_USER=
-POSTGRES_PASSWORD=
-```
-
-Keep secrets out of source control.
-
----
-
-## 🚀 Pipeline Execution
-
-The pipeline can be executed manually during development or automatically through Airflow.
-
-Typical workflow:
+This starts the PostgreSQL container:
 
 ```text
-1. Airflow starts the DAG
-2. Python requests weather data
-3. Raw API response is received
-4. Data is transformed
-5. Data-quality checks are executed
-6. Valid records are loaded into PostgreSQL
-7. Logs are generated
-8. Pipeline completes
+postgres_storage
 ```
 
----
+### 2. Create the Database
 
-## 📌 Expected Outcome
+Connect to PostgreSQL:
 
-The final system is an automated end-to-end weather data platform capable of:
+```bash
+docker exec -it postgres_storage psql -U postgres
+```
 
-* Collecting weather data at regular intervals.
-* Processing raw API responses.
-* Validating data quality.
-* Storing historical weather data.
-* Automating workflows.
-* Querying data using SQL.
-* Supporting analytical dashboards.
+Create the database:
 
-The project demonstrates practical knowledge of:
+```sql
+CREATE DATABASE Weather_DB;
+```
 
-* Data ingestion
-* ETL pipelines
-* Data transformation
-* SQL
-* PostgreSQL
-* Workflow orchestration
-* Automation
-* Data quality
-* Docker
-* Data analysis
+Then create the table:
 
----
+```sql
+CREATE TABLE weather_data(
+    id SERIAL PRIMARY KEY,
+    latitude FLOAT NOT NULL,
+    longitude FLOAT NOT NULL,
+    time TIMESTAMP NOT NULL,
+    temperature FLOAT NOT NULL
+);
+```
 
-## 🔮 Future Improvements
+### 3. Start Airflow
 
-The project can be extended with:
+Start the Airflow environment:
 
-* AWS S3 or another cloud object store.
-* Cloud data warehouses such as Snowflake or BigQuery.
-* Apache Spark for large-scale processing.
-* Apache Kafka for real-time streaming.
-* dbt for analytics transformations.
-* Automated data-quality testing.
-* CI/CD using GitHub Actions.
-* Pipeline monitoring and alerting.
-* Real-time weather dashboards.
-* Support for hundreds or thousands of cities.
-* Separate raw, cleaned, and analytics layers.
+```bash
+docker compose -f docker-compose-airflow.yaml up -d
+```
 
----
-
-## 💼 Skills Demonstrated
-
-This project demonstrates the following data engineering skills:
+The Airflow API server is exposed on:
 
 ```text
-Python
-   ↓
-REST APIs
-   ↓
-ETL / ELT
-   ↓
-Data Cleaning
-   ↓
-SQL
-   ↓
-PostgreSQL
-   ↓
-Apache Airflow
-   ↓
-Docker
-   ↓
-Data Quality
-   ↓
-Data Visualization
+http://localhost:8080
 ```
 
----
+The Airflow Compose configuration creates the default Airflow user with:
 
-## 📝 Project Summary
+```text
+Username: airflow
+Password: airflow
+```
 
-**The Weather Data Engineering Pipeline is an automated ETL system that collects weather data from an external API, performs data cleaning and transformation using Python, validates the processed information, and stores historical weather records in PostgreSQL. Apache Airflow is used to schedule and orchestrate the workflow, while Docker provides a consistent environment for running the system. The resulting dataset can be queried using SQL and connected to a BI dashboard for analysis.**
+unless these values are overridden through the environment configuration.
 
-This project demonstrates the complete data engineering lifecycle, from **data ingestion and transformation to storage, orchestration, quality validation, and visualization**.
+### 4. Run the DAG
 
----
+Open the Airflow interface at:
 
-## 👨‍💻 Author
+```text
+http://localhost:8080
+```
+
+Locate:
+
+```text
+Weather_pipeline
+```
+
+and run the DAG.
+
+The tasks execute in this order:
+
+```text
+extract_data_from_source
+        ↓
+load_data_to_destination
+        ↓
+remove_intermediate_data
+```
+
+## Checking the Data
+
+After the pipeline has successfully executed, the stored records can be queried with:
+
+```sql
+SELECT * FROM weather_data;
+```
+
+The project also includes this query in:
+
+```text
+Database_Table_Creation
+```
+
+## Docker Services
+
+### Airflow Environment
+
+The Airflow Compose configuration contains the following services:
+
+```text
+postgres
+redis
+airflow-apiserver
+airflow-scheduler
+airflow-dag-processor
+airflow-worker
+airflow-triggerer
+airflow-init
+airflow-cli
+flower
+```
+
+`flower` is configured as an optional Compose profile.
+
+### Weather Storage Database
+
+The separate system Compose file contains:
+
+```text
+postgres_storage
+```
+
+This container is responsible for the PostgreSQL database used by the weather-data pipeline.
+
+## Configuration
+
+The Airflow Compose configuration reads environment variables from:
+
+```text
+.env
+```
+
+It supports configuration values including:
+
+```text
+AIRFLOW_UID
+AIRFLOW_IMAGE_NAME
+AIRFLOW_PROJ_DIR
+FERNET_KEY
+_AIRFLOW_WWW_USER_USERNAME
+_AIRFLOW_WWW_USER_PASSWORD
+AIRFLOW__API_AUTH__JWT_SECRET
+AIRFLOW__API_AUTH__JWT_ISSUER
+```
+
+The default Airflow image configured in the Compose file is:
+
+```text
+apache/airflow:3.3.1
+```
+
+## Logging
+
+The Python ETL code uses Python's logging module.
+
+The configured log format is:
+
+```text
+%(levelname)s - %(name)s - %(message)s
+```
+
+The extraction, loading, and cleanup functions log the beginning/end of their operations and log exceptions when errors occur.
+
+## Error Handling
+
+The ETL functions use `try/except` blocks.
+
+For extraction and loading, exceptions are logged and raised again.
+
+The cleanup function logs an error if removing the intermediate file fails.
+
+## Data Source
+
+The pipeline uses the Open-Meteo forecast API:
+
+```text
+https://api.open-meteo.com/v1/forecast
+```
+
+The request currently asks for:
+
+```text
+hourly=temperature_2m
+```
+
+using randomly generated latitude and longitude coordinates.
+
+## License
+
+The project does not currently contain a separate project license file.
+
+## Author
 
 **Your Name**
 
-* GitHub: `<your-github-profile>`
-* LinkedIn: `<your-linkedin-profile>`
+Replace this section with your GitHub profile information.
 
----
+## Project Structure
 
-## 📄 License
-
-This project is intended for educational and portfolio purposes. Add a license here if you plan to distribute the project publicly.
+```text
+Weather Data Pipeline
+│
+├── pipeline.py
+│   └── Airflow DAG
+│
+├── Utilities.py
+│   ├── extract()
+│   ├── load()
+│   └── remove_file()
+│
+├── docker-compose-airflow.yaml
+│   └── Airflow + Redis + PostgreSQL environment
+│
+├── docker-compose-system.yaml
+│   └── PostgreSQL weather-data storage
+│
+├── Dockerfile
+│   └── PostgreSQL image
+│
+└── Database_Table_Creation
+    └── Database and table SQL
+```
