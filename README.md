@@ -141,8 +141,7 @@ The `Weather_pipeline` DAG (`dags/pipeline.py`) runs every minute and consists o
 extract_data_from_source >> transform_data >> load_data_to_destination >> remove_intermediate_data
 ```
 
-<!-- Replace the image path below with a screenshot of the DAG graph from the Airflow UI, e.g. docs/images/dag_graph.png -->
-![DAG Graph](docs/images/dag_graph.png)
+<img width="1788" height="963" alt="Image" src="https://github.com/user-attachments/assets/858100ad-4ef8-4e5b-b7b2-a3fe092c3548" />
 
 ## Database Schema
 
