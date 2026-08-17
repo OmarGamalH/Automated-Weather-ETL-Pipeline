@@ -492,31 +492,3 @@ The project does not currently contain a separate project license file.
 ## Author
 
 **Omar Gamal**
-
-Replace this section with your GitHub profile information.
-
-## Project Structure
-
-```text
-Weather Data Pipeline
-│
-├── pipeline.py
-│   └── Airflow DAG
-│
-├── Utilities.py
-│   ├── extract()
-│   ├── load()
-│   └── remove_file()
-│
-├── docker-compose-airflow.yaml
-│   └── Airflow + Redis + PostgreSQL environment
-│
-├── docker-compose-system.yaml
-│   └── PostgreSQL weather-data storage
-│
-├── Dockerfile
-│   └── PostgreSQL image
-│
-└── Database_Table_Creation
-    └── Database and table SQL
-```
